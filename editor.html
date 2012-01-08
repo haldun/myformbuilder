@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MyFormBuilder</title>
+  <link rel="stylesheet" href="lib/bootstrap.min.css">
+  <link rel="stylesheet" href="editor.css">
+  <script src="lib/jquery.min.js"></script>
+  <script src="lib/jquery-ui.min.js"></script>
+  <script src="lib/knockout-latest.debug.js"></script>
+  <script src="lib/knockout.mapping-latest.js"></script>
+  <script src="lib/bootstrap-tabs.js"></script>
+  <script src="lib/jquery.hotkeys.js"></script>
+  <script src="editor.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="content">
+    <div class="page-header row">
+      <div class="pull-left"><h1>MyFormBuilder</h1></div>
+    </div>
+    <div class="row">
+      <div class="span6 sidebar">
+        <ul class="tabs" data-tabs="tabs" data-bind="tab: $root.currentTab">
+          <li class="active"><a href="#add-field-pane">Add a Field</a></li>
+          <li><a href="#field-settings-pane">Field Settings</a></li>
+          <li><a href="#form-settings-pane">Form Settings</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="add-field-pane">
+            <div data-bind="template: 'tmpl-add-field'"></div>
+          </div>
+          <div class="tab-pane" id="field-settings-pane">
+            <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
+          </div>
+          <div class="tab-pane" id="form-settings-pane">
+            <div data-bind="template: {name: 'tmpl-form', data: form }"></div>
+          </div>
+        </div>
+      </div>
+      <div class="span10 main-content" data-bind="with: form">
+        <div class="field-wrapper"
+             data-bind="click: $root.showFormSettings, css: { selected: $root.formSettingsSelected }">
+          <h2 data-bind="text: name"></h2>
+          <p data-bind="text: description"></p>
+        </div>
+        <form data-bind="template: {name: 'tmpl-field-preview', foreach: fields}, sortableList: fields"
+              class="form-stacked"></form>
+        <div data-bind="ifnot: hasFields">
+          <div class="alert-message block-message warning">
+            <p><strong>Hey, there is no fields!</strong> Currently, you don't have
+              any fields.</p>
+            <div class="alert-actions">
+              <button class="btn small" data-bind="click: $root.createFirstField">Create a field for me</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+    <h4>Form Structure</h4>
+    <pre data-bind="text: $root.formJSON"></pre></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>formbuilder</p>
+  </div>
+</footer>
+
+<!-- Form settings -->
+<script type="text/html" id="tmpl-form">
+  <form class="form-stacked">
+    <p>
+      <label>Name</label>
+      <input data-bind="value: name">
+    </p>
+    <p>
+      <label>Description</label>
+      <textarea data-bind="value: description"></textarea>
+    </p>
+  </form>
+</script>
+
+<!-- Add Field Pane -->
+<script type="text/html" id="tmpl-add-field">
+  <div class="add-field-pane" data-bind="click: $root.addField">
+    <!-- TODO: Generate these buttons dynamically -->
+    <button class="btn success" data-type="text">Single Line Text</button>
+    <button class="btn success" data-type="number">Number</button>
+    <button class="btn success" data-type="textarea">Paragraph Text</button>
+    <button class="btn success" data-type="checkbox">Checkboxes</button>
+    <button class="btn success" data-type="radio">Multiple Choice</button>
+    <button class="btn success" data-type="select">Dropdown</button>
+    <button class="btn success" data-type="section">Section Break</button>
+    <button class="btn success" data-type="page">Page Break</button>
+    <br><br>
+    <button class="btn success" data-type="shortname">Name</button>
+    <button class="btn success" data-type="file">File Upload</button>
+    <button class="btn success" data-type="address">Address</button>
+    <button class="btn success" data-type="date">Date</button>
+    <button class="btn success" data-type="email">Email</button>
+    <button class="btn success" data-type="time">Time</button>
+    <button class="btn success" data-type="phone">Phone</button>
+    <button class="btn success" data-type="url">Website</button>
+    <button class="btn success" data-type="money">Price</button>
+    <button class="btn success" data-type="likert">Likert</button>
+  </div>
+</script>
+
+<!-- Generic field preview template -->
+<script type="text/html" id="tmpl-field-preview">
+  <div class="clearfix field-wrapper"
+       data-bind="click: $root.selectField,
+                  css: { selected: $data == $root.selectedField() },
+                  sortableItem: $data">
+    <label>
+      <span data-bind="if: is_required" class="required">*</span>
+      <span data-bind="text: title"></span>
+    </label>
+    <div data-bind="template: previewTemplateName"></div>
+    <div class="pull-right">
+      <button data-bind="click: $root.duplicateField" class="btn xsmall success">+</button>
+      <button data-bind="click: $root.removeField" class="btn xsmall danger">×</button>
+    </div>
+  </div>
+</script>
+
+<!-- Generic field settings template -->
+<script type="text/html" id="tmpl-field-settings">
+  <div data-bind="if: $data">
+    <form class="form-stacked">
+      <div class="clearfix">
+        <label>Title</label>
+        <textarea data-bind="value: title" class="xlarge"></textarea>
+      </div>
+      <div class="clearfix">
+        <label>Type</label>
+        <select data-bind="options: FIELD_TYPES, value: type"></select>
+      </div>
+      <div class="clearfix">
+        <label>
+          <input type="checkbox" data-bind="checked: is_required">
+          <span>Required?</span>
+        </label>
+      </div>
+      <div class="clearfix">
+        <label>Instructions</label>
+        <textarea data-bind="value: instructions"></textarea>
+      </div>
+      <div data-bind="template: settingsTemplateName"></div>
+    </form>
+  </div>
+  <div data-bind="ifnot: $data">
+  Select a field.
+  </div>
+</script>
+
+<!-- Radio field -->
+<script type="text/html" id="tmp-field-preview-radio">
+  <ul data-bind="foreach: choices" class="unstyled">
+    <label>
+      <input type="radio" data-bind="attr: {name: $parent.FieldId}" disabled readonly>
+      <span data-bind="text: choice"></span>
+    </label>
+  </ul>
+</script>
+<script type="text/html" id="tmp-field-settings-radio">
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
+</script>
+
+<!-- Number field -->
+<script type="text/html" id="tmp-field-preview-number">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-number"></script>
+
+<!-- Text field -->
+<script type="text/html" id="tmp-field-preview-text">
+  <input class="xlarge">
+</script>
+<script type="text/html" id="tmp-field-settings-text"></script>
+
+<!-- Checkboxes field -->
+<script type="text/html" id="tmp-field-preview-checkbox">
+  <ul data-bind="foreach: choices" class="unstyled">
+    <label>
+      <input type="checkbox" data-bind="attr: {name: $parent.FieldId}" disabled readonly>
+      <span data-bind="text: choice"></span>
+    </label>
+  </ul>
+</script>
+<script type="text/html" id="tmp-field-settings-checkbox">
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
+</script>
+
+<!-- Section -->
+<script type="text/html" id="tmp-field-preview-section">
+  <p data-bind="text: instructions"></p>
+</script>
+<script type="text/html" id="tmp-field-settings-section"></script>
+
+<!-- Page -->
+<script type="text/html" id="tmp-field-preview-page"></script>
+<script type="text/html" id="tmp-field-settings-page"></script>
+
+<!-- Textarea field -->
+<script type="text/html" id="tmp-field-preview-textarea">
+  <textarea class="xlarge"></textarea>
+</script>
+<script type="text/html" id="tmp-field-settings-textarea"></script>
+
+<!-- Shortname field -->
+<script type="text/html" id="tmp-field-preview-shortname">
+  <input >
+  <input >
+</script>
+<script type="text/html" id="tmp-field-settings-shortname"></script>
+
+<!-- File field -->
+<script type="text/html" id="tmp-field-preview-file">
+  <input type="file">
+</script>
+<script type="text/html" id="tmp-field-settings-file"></script>
+
+<!-- Date field -->
+<script type="text/html" id="tmp-field-preview-date">
+  <input class="small"> / <input class="small"> / <input class="small">
+</script>
+<script type="text/html" id="tmp-field-settings-date"></script>
+
+<!-- Time field -->
+<script type="text/html" id="tmp-field-preview-time">
+  <input class="small"> : <input class="small">
+</script>
+<script type="text/html" id="tmp-field-settings-time"></script>
+
+<!-- Address field -->
+<script type="text/html" id="tmp-field-preview-address">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-address"></script>
+
+<!-- Money field -->
+<script type="text/html" id="tmp-field-preview-money">
+  <input>
+</script>
+<script type="text/html" id="tmp-field-settings-money"></script>
+
+<!-- Email field -->
+<script type="text/html" id="tmp-field-preview-email">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-email"></script>
+
+<!-- Phone field -->
+<script type="text/html" id="tmp-field-preview-phone">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-phone"></script>
+
+<!-- Select field -->
+<script type="text/html" id="tmp-field-preview-select">
+  <select data-bind="options: choices, optionsText: 'choice'"></select>
+</script>
+<script type="text/html" id="tmp-field-settings-select">
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
+</script>
+
+<!-- URL field -->
+<script type="text/html" id="tmp-field-preview-url">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-url"></script>
+
+<!-- Likert field -->
+<script type="text/html" id="tmp-field-preview-likert">
+  <strong>Not Implemented Yet</strong>
+</script>
+<script type="text/html" id="tmp-field-settings-likert"></script>
+
+<!-- Helpers -->
+<script type="text/html" id="tmp-choices">
+  <div class="clearfix">
+    <label>choices</label>
+    <ul data-bind="foreach: choices" class="unstyled">
+      <li>
+        <input data-bind="value: choice" class="">
+        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
+        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
+      </li>
+    </ul>
+    <div data-bind="ifnot: hasChoices">
+      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
+    </div>
+  </div>
+  <div class="clearfix">
+    <label>
+      <input data-bind="checked: is_randomized" type="checkbox">
+      <span>Randomized?</span>
+    </label>
+  </div>
+</script>
+
+</body>
+<script>
+var formData = {name: "My first form", description: "Description goes here."};
+var builder = new EditorViewModel(formData);
+ko.applyBindings(builder);
+</script>
+</html>
