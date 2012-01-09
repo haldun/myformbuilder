@@ -236,7 +236,6 @@ FormViewModel.prototype.toJSON = function() {
   // Remove ko mappings from the object recursively
   traverse(obj, function(object, key, value) {
     if (key === '__ko_mapping__') {
-      console.log(object);
       delete object[key];
     };
   });
