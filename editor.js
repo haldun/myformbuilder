@@ -216,12 +216,32 @@ var FormViewModel = function(data) {
   };
 };
 
+// Helper
+var traverse = function(o, func) {
+  for (i in o) {
+    func.apply(this, [o, i, o[i]]);
+    if (typeof(o[i])=="object") {
+      traverse(o[i],func);
+    }
+  }
+};
+
 FormViewModel.prototype.toJSON = function() {
-  return {
+  var obj = {
     name: ko.utils.unwrapObservable(this.name),
     description: ko.utils.unwrapObservable(this.description),
     fields: ko.utils.unwrapObservable(this.fields)
   };
+
+  // Remove ko mappings from the object recursively
+  traverse(obj, function(object, key, value) {
+    if (key === '__ko_mapping__') {
+      console.log(object);
+      delete object[key];
+    };
+  });
+
+  return obj;
 };
 
 var FieldViewModel = function(data) {
@@ -249,7 +269,7 @@ var FieldViewModel = function(data) {
 
   // Behaviour
   this.addChoice = function() {
-    self.choices.push(ko.mapping.fromJS({"Choice": ""}));
+    self.choices.push(ko.mapping.fromJS({"choice": ""}));
   };
 
   this.removeChoice = function(choice) {
@@ -264,7 +284,7 @@ FieldViewModel.prototype.toJSON = function() {
     is_required: ko.utils.unwrapObservable(this.is_required),
     instructions: ko.utils.unwrapObservable(this.instructions),
     choices: ko.utils.unwrapObservable(this.choices),
-    is_randomized: ko.utils.unwrapObservable(this.IsRandomized)
+    is_randomized: ko.utils.unwrapObservable(this.is_randomized)
   };
 };
 
