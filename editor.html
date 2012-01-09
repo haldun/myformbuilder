@@ -66,13 +66,18 @@
 
 <footer class="footer">
   <div class="container">
-    <p>formbuilder</p>
+    <h6>Keyboard shortcuts</h6>
+    <ul>
+      <li><strong>j</strong> Select next field</li>
+      <li><strong>k</strong> Select previous field</li>
+      <li><strong>DEL or BACKSPACE</strong> Delete selected field</li>
+    </ul>
   </div>
 </footer>
 
 <!-- Form settings -->
 <script type="text/html" id="tmpl-form">
-  <form class="form-stacked">
+  <form class="form-stacked" data-bind="submit: $.noop">
     <p>
       <label>Name</label>
       <input data-bind="value: name">
