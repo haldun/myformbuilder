@@ -9,6 +9,7 @@
   <script src="lib/jquery-ui.min.js"></script>
   <script src="lib/knockout-latest.debug.js"></script>
   <script src="lib/knockout.mapping-latest.js"></script>
+  <script src="lib/knockout-sortable.js"></script>
   <script src="lib/bootstrap-tabs.js"></script>
   <script src="lib/jquery.hotkeys.js"></script>
   <script src="editor.js"></script>
@@ -45,7 +46,7 @@
           <h2 data-bind="text: name"></h2>
           <p data-bind="text: description"></p>
         </div>
-        <form data-bind="template: {name: 'tmpl-field-preview', foreach: fields}, sortableList: fields"
+        <form data-bind="sortable: {template: 'tmpl-field-preview', data: fields}"
               class="form-stacked"></form>
         <div data-bind="ifnot: hasFields">
           <div class="alert-message block-message warning">
