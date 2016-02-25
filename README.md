@@ -1,3 +1,5 @@
+Moved here: https://bitbucket.org/haldun/myformbuilder
+
 MyFormBuilder
 =============
 
@@ -14,5 +16,3 @@ This app depends on:
 
 All dependent libraries and stylesheets are stored in `lib` directory.
 
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/c1bcd57bb14d5557316aa9cc2d382f55 "githalytics.com")](http://githalytics.com/haldun/myformbuilder)
