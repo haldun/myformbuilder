@@ -1,5 +1,3 @@
-Moved here: https://bitbucket.org/haldun/myformbuilder
-
 MyFormBuilder
 =============
 
